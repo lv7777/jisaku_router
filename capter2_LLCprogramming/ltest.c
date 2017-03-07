@@ -12,3 +12,7 @@
 #include<linux/if.h>
 #include<netpacket/packet.h>
 #include<netinet/if_ether.h>
+
+int main(int argc,char **argv){
+    return 0;
+}
