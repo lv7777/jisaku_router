@@ -8,3 +8,9 @@ windowsだとwinsockでポートにバインドするけどlinuxの場合はソ�
 
 # linuxのNW系のインクルードヘッダについて
 
+* sys/ioctl
+
+sys/ioctlの中のioctl関数はスペシャルファイルを扱うための関数。
+
+システムコールとも関係あるっぽい。
+
