@@ -16,3 +16,14 @@ sys/ioctlの中のioctl関数はスペシャルファイルを扱うための関
 
 ___
 2層を操るためにはいつものsys/socket.hとかに加えてlinux/if.hとかnetpacket/packet.hとかnetinet/if_ether.hとかが必要。
+
+# 関数
+
+* htons
+
+バイトオーダー関連の奴。winsockでも使えるっぽい。
+
+* ioctl
+
+ioctlはいろんなコマンド（操作）を発行できる。
+その中でもSIOCGIFINDEXはifの一覧を得ることができる
