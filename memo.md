@@ -14,3 +14,5 @@ sys/ioctlの中のioctl関数はスペシャルファイルを扱うための関
 
 システムコールとも関係あるっぽい。
 
+___
+2層を操るためにはいつものsys/socket.hとかに加えてlinux/if.hとかnetpacket/packet.hとかnetinet/if_ether.hとかが必要。
