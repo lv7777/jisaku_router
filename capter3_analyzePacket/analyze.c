@@ -83,3 +83,26 @@ int AnalyzeIcmp6(u_char *data,int size){
 
     return 0;
 }
+
+
+int AnalyzeTcp(u_char *data,int size){
+    u_char *ptr;
+    int lest;
+    struct tcphdr *tcphdr;
+    ptr=data;
+    lest=size;
+    if(lest<sizeof(struct tcphdr)){
+        fprintf(stderr,"lest(%d)<sizeof(struct tcphdr)\n",lest);
+        return -1;
+    }
+    tcphdr=(struct tcphdr*)ptr;
+
+    //TODO:what this code?
+    ptr+=sizeof(struct tcphdr);
+    lest+=sizeof(struct tcphdr);
+
+    PrintTcp(tcphdr,stdout);
+
+    return 0;
+}
+
