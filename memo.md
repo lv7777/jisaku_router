@@ -37,3 +37,7 @@ stdio.h内に定義されている。print error。stderrに出力するが通�
 * u\_char,u\_int
 
 unsigned charのエイリアス。sys/types.hで定義されてるっぽい。
+
+* socket
+
+socketは失敗してもエラーを出さない。そのためperrorで確認してやる必要がある。
