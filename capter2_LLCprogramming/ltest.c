@@ -1,3 +1,11 @@
+// pcaptcpdump
+#define TCPDUMP_MAGIC 0xa1b2c3d4
+#define PCAP_VERSION_MAJOR 2
+#define PCAP_VERSiON_MINOR 4
+
+#define DLT_EN10MB 1 //ethernet 10mb
+
+
 // ltest.c link layer test.
 
 #include<stdio.h>
