@@ -14,6 +14,8 @@
 #include<netinet/if_ether.h>
 
 int socketinit(char *device,int promiscasmode,int iponly){
+    struct ifreq ifreq;
+    struct sockaddr_ll sa;
 
 //file discriptor is created by socket function
 int sd;
@@ -22,8 +24,40 @@ int sd;
 sd=socket(PF_PACKET,SOCK_RAW,htons(ETH_P_IP));
 if(sd<0){
     printf("err!!!");
+    return 1;
 }
-return 1;
+
+memset(&ifreq,0,sizeof(struct ifreq));
+strncpy(ifreq.ifr_name,device,sizeof(ifreq.ifr_name)-1);
+if(ioctl(sd,SIOCGIFINDEX,&ifreq)<0){
+    perror("ioctl");
+    close(sd);
+    return 1;
+}
+
+sa.sll_family=PF_PACKET;
+sa.sll_protocol=htons(ETH_P_IP);
+sa.sll_ifindex=ifreq.ifr_ifindex;
+if(bind(sd,(struct sockaddr *)&sa,sizeof(sa))<0){
+    perror("bind");
+    close(sd);
+    return 1;
+}
+//if promiscasmode
+if(ioctl(sd,SIOCGIFFLAGS,&ifreq)<0){
+    perror("ioctl");
+    close(fd);
+    return 1;
+}
+ifreq.ifr_flags=ifreq.ifr_flags | IFF_PROMISC;
+
+if(ioctl(sd,SIOCSIFFLAGS,&ifreq)<0){
+    perror("ioctl");
+    close(fd);
+    return 1;
+}
+
+return (sd);
 }
 
 int main(int argc,char **argv){
