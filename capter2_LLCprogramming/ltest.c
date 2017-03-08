@@ -87,6 +87,32 @@ int PrintEtherHeader(struct ether_header *eh,FILE *fp){
     return 0;
 }
 
-int main(int argc,char **argv){
+int main(int argc,char **argv,char **envp){
+    int sd,size;
+    u_char buf[2048];
+    if(argc<=1){
+        fprintf(stderr,"ltest device-name-n");
+        return 1;
+    }
+
+    if( (sd=socketinit(argv[1],0,0))==-1 ){
+        fprintf(stderr,"socketinit:err:%s\n",argv[1]);
+        return 1;
+    }
+
+    while(1){
+        if((size=read(sd,buf,sizeof(buf)))<=0){
+            perror("read");
+        }else{
+            if(size>=sizeof(struct ether_header)){
+                PrintEtherHeader( (struct ether_header *)buf,stdout );
+            }else{
+                fprintf(stderr,"read size(%d) 1, %d \n",size,sizeof(struct ether_header));
+            }
+        }
+    }
+
+    close(sd);
+
     return 0;
 }
