@@ -27,3 +27,10 @@ ___
 
 ioctlはいろんなコマンド（操作）を発行できる。
 その中でもSIOCGIFINDEXはifの一覧を得ることができる
+
+* perror
+
+stdio.h内に定義されている。print error。stderrに出力するが通常はstderrはstdioなので問題ない。
+
+ついでにエラーが起こったときのエラーコードも表示してくれる。
+
