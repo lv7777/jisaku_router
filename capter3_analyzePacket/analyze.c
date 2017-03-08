@@ -106,3 +106,24 @@ int AnalyzeTcp(u_char *data,int size){
     return 0;
 }
 
+
+int AnalyzeUdp(u_char *data,int size){
+    u_char *ptr;
+    int lest;
+    struct udphdr *udphdr;
+    ptr=data;
+    lest=size;
+    if(lest<sizeof(struct udphdr)){
+        fprintf(stderr,"lest(%d)<sizeof(struct udphdr)\n",lest);
+        return -1;
+    }
+    udphdr=(struct udphdr*)ptr;
+
+    //TODO:what this code?
+    ptr+=sizeof(struct udphdr);
+    lest+=sizeof(struct udphdr);
+
+    PrintUdp(udphdr,stdout);
+
+    return 0;
+}
