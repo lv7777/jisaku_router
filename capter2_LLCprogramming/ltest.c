@@ -46,21 +46,21 @@ if(bind(sd,(struct sockaddr *)&sa,sizeof(sa))<0){
 //if promiscasmode
 if(ioctl(sd,SIOCGIFFLAGS,&ifreq)<0){
     perror("ioctl");
-    close(fd);
+    close(sd);
     return 1;
 }
 ifreq.ifr_flags=ifreq.ifr_flags | IFF_PROMISC;
 
 if(ioctl(sd,SIOCSIFFLAGS,&ifreq)<0){
     perror("ioctl");
-    close(fd);
+    close(sd);
     return 1;
 }
 
 return (sd);
 }
 
-char* my_ether_ntoa_r(u_char *hwaddr,char *buf,socketlen_t size){
+char* my_ether_ntoa_r(u_char *hwaddr,char *buf,socklen_t size){
     snprintf(buf,size,"%02x:%02x:%02x:%02x:%02x:%02x",hwaddr[0],hwaddr[1],hwaddr[2],hwaddr[3],hwaddr[4],hwaddr[5]);
     return buf;
 }
@@ -91,7 +91,7 @@ int main(int argc,char **argv,char **envp){
     int sd,size;
     u_char buf[2048];
     if(argc<=1){
-        fprintf(stderr,"ltest device-name-n");
+        fprintf(stderr,"ltest device-name\n");
         return 1;
     }
 
