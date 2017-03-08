@@ -49,3 +49,7 @@ socket関数の第２引数にはSOCK\_STREAMとSOCK\_RAWの２つがある。
 address family inet,protocol family inet.
 
 実態としてはPF\_INETはAF\_INETのエイリアス。
+
+* INADDR\_ANY
+
+0.0.0.0
