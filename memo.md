@@ -41,3 +41,11 @@ unsigned charのエイリアス。sys/types.hで定義されてるっぽい。
 * socket
 
 socketは失敗してもエラーを出さない。そのためperrorで確認してやる必要がある。
+
+socket関数の第２引数にはSOCK\_STREAMとSOCK\_RAWの２つがある。
+
+* AF\_INET,PF\_INET
+
+address family inet,protocol family inet.
+
+実態としてはPF\_INETはAF\_INETのエイリアス。
