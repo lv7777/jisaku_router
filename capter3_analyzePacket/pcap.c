@@ -71,6 +71,29 @@ int InitRawSocket(char *device,int promiscFlag,int ipOnly){
     return 0;
 }
 
-int main(){
+int main(int argc,char **argv,char **envp){
+    int sock,size;
+    u_char buf[65535];
 
+    if(argc<=1){
+        fprintf(stderr,"ltest device-name\n");
+        return 1;
+    }
+
+    if(sock=InitRawSocket(argv[1],0,0)==-1){
+        fprintf(stderr,"InitRawSocket error:%s \n",argv[1]);
+        return -1;
+    }
+
+    while(1){
+        if((size=read(sock,buf,sizeof(buf)))<=0){
+            perror("read");
+        }else{
+            AnalyzePacket(buf,size);
+        }
+    }
+
+    close(sock);
+
+    return 0;
 }
