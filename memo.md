@@ -53,3 +53,7 @@ address family inet,protocol family inet.
 * INADDR\_ANY
 
 0.0.0.0
+
+* struct ether\_arp,ether\_header
+
+netinet/if\_ether.hに存在している。
