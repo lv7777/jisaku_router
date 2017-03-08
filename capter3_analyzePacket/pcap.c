@@ -15,6 +15,62 @@
 #include<netpacket/packet.h>
 #include<netinet/ip.h>
 
+int InitRawSocket(char *device,int promiscFlag,int ipOnly){
+
+    struct ifreq ifreq;
+    struct sockaddr_ll sa;
+    int sock;
+
+    if(ipOnly){
+        if(sock=socket(PF_PACKET,SOCK_RAW,htons(ETH_P_IP))<0){
+            perror("socket");
+            return -1;
+        }
+    }else{
+        if(sock=socket(PF_PACKET,SOCK_RAW,htons(ETH_P_ALL))<0){
+            perror("socket");
+            return -1;
+        }
+    }
+
+    memset(&ifreq,0,sizeof(ifreq));
+    strncpy(ifreq.ifr_name,device,sizeof(ifreq.ifr_name)-1);
+    if(ioctl(sock,SIOCGIFINDEX,&ifreq)<0){
+        perror("ioctl");
+        return -1;
+    }
+
+    sa.sll_family=PF_PACKET;
+    if(ipOnly){
+        sa.sll_protocol=htons(ETH_P_IP);
+    }else{
+        sa.sll_protocol=htons(ETH_P_ALL);
+    }
+    sa.sll_ifindex=ifreq.ifr_index;
+
+    if(bind(sock,(struct sockaddr*)&sa,sizeof(sa))<0){
+        perror("bind");
+        close(sock);
+        return -1;
+    }
+
+    if(promiscFlag){
+        if(ioctl(sock,SIOCGIFFLAGS,&ifreq)<0){
+            perror("ioctl");
+            close(sock);
+            return -1;
+        }
+        ifreq.ifr_flags=ifreq.ifr_flags|IFF_PROMISC;
+        if(ioctl(sock,SIOCSIFFLAGS,&ifreq)<0){
+            perror("ioctl");
+            close(sock);
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
 int main(){
-    
+
 }
