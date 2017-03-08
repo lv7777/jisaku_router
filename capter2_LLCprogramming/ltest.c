@@ -60,6 +60,11 @@ if(ioctl(sd,SIOCSIFFLAGS,&ifreq)<0){
 return (sd);
 }
 
+char* my_ether_ntoa_r(u_char *hwaddr,char *buf,socketlen_t size){
+    snprintf(buf,size,"%02x:%02x:%02x:%02x:%02x:%02x",hwaddr[0],hwaddr[1],hwaddr[2],hwaddr[3],hwaddr[4],hwaddr[5]);
+    return buf;
+}
+
 int main(int argc,char **argv){
     return 0;
 }
