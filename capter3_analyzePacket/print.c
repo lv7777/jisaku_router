@@ -144,3 +144,25 @@ int PrintArp(struct ether_arp *arp,FILE *fp)
     return(0);
 }
 
+
+static char     *Proto[]={
+        "undefined",
+        "ICMP",
+        "IGMP",
+        "undefined",
+        "IPIP",
+        "undefined",
+        "TCP",
+        "undefined",
+        "EGP",
+        "undefined",
+        "undefined",
+        "undefined",
+        "PUP",
+        "undefined",
+        "undefined",
+        "undefined",
+        "undefined",
+        "UDP"
+};
+
