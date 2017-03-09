@@ -58,3 +58,46 @@ int PrintEtherHeader(struct ether_header *eh,FILE *fp){
     }
     return 0;
 }
+
+int PrintArp(struct ether_arp *arp,FILE *fp)
+{
+    static char *hrd[]={
+            "From KA9Q: NET/ROM pseudo.",
+            "Ethernet 10/100Mbps.",
+            "Experimental Ethernet.",
+            "AX.25 Level 2.",
+            "PROnet token ring.",
+            "Chaosnet.",
+            "IEEE 802.2 Ethernet/TR/TB.",
+            "ARCnet.",
+            "APPLEtalk.",
+            "undefine",
+            "undefine",
+            "undefine",
+            "undefine",
+            "undefine",
+            "undefine",
+            "Frame Relay DLCI.",
+            "undefine",
+            "undefine",
+            "undefine",
+            "ATM.",
+            "undefine",
+            "undefine",
+            "undefine",
+            "Metricom STRIP (new IANA id)."
+    };
+    static char *op[]={
+            "undefined",
+            "ARP request.",
+            "ARP reply.",
+            "RARP request.",
+            "RARP reply.",
+            "undefined",
+            "undefined",
+            "undefined",
+            "InARP request.",
+            "InARP reply.",
+            "(ATM)ARP NAK."
+    };
+}
