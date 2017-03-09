@@ -29,3 +29,10 @@ char* arp_ip2str(u_int8_t *ip,char *buf,socket_len_t size){
     snprintf(buf,size,"%d.%d.%d.%d",ip[0],ip[1],ip[2],ip[3]);
     return buf;
 }
+
+char* ip_ip2str(u_int32_t *ip,char *buf,socket_len_t size){
+    struct in_addr *addr;
+    addr=(struct in_addr *)&ip;
+    inet_ntop(AF_INET,addr,buf,size);
+    retur buf;
+}
