@@ -127,3 +127,44 @@ int AnalyzeUdp(u_char *data,int size){
 
     return 0;
 }
+
+
+int AnalyzeIp(u_char *data,int size){
+    u_char *ptr;
+    int lest;
+    struct iphdr *iphdr;
+    u_char *option;
+    int optionlen,len;
+    unsigned short sum;
+    ptr=data;
+    lest=size;
+    if(lest<sizeof(struct iphdr)){
+        fprintf(stderr,"lest(%d)<sizeof(struct iphdr)\n",lest);
+        return -1;
+    }
+    iphdr=(struct iphdr*)ptr;
+
+    //TODO:what this code?
+    ptr+=sizeof(struct iphdr);
+    lest+=sizeof(struct iphdr);
+
+    optionlen=iphdr->ihl*4-sizeof(struct iphdr);
+    if(optionlen>0){
+        if(optionlen>=1500){
+            fprintf(stderr,"IP optionlen");
+            return -1;
+        }
+        option=ptr;
+        ptr+=optionlen;
+        lest+=optionlen;
+    }
+
+    if(checkIPchecksum(iphdr,option,optionlen)==0){
+        fprintf(stderr,"bad ip checksum");
+        return -1;
+    }
+
+    PrintIpHeader(iphdr,option,optionlen,stdout);
+
+    return 0;
+}
