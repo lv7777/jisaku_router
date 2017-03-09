@@ -67,3 +67,10 @@ iphdr.tot\_lenはトータルlengthのこと。「バージョン、ヘッダ長
 iphdr.ihlはipヘッダ長のこと。分かり辛い・・・・
 
 その他のプロトコルの構造体もnetinet以下に存在してるっぽい。
+
+* struct ip6\_hdr
+
+netinet/ip6.hに存在している。
+
+ip6の場合はipとはずれている。
+例えばipのヘッダ長がihlに大して、ip6\_hdrだと、ip6\_hdr->ip6_nxtみたいな感じになる。
