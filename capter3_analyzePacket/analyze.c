@@ -236,4 +236,5 @@ int AnalyzeIpv6(u_char *data,int size){
         }
         AnalyzeUdp(ptr,lest);
     }
+    return 0;
 }
