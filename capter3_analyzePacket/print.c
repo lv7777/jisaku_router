@@ -100,4 +100,47 @@ int PrintArp(struct ether_arp *arp,FILE *fp)
             "InARP reply.",
             "(ATM)ARP NAK."
     };
+
+    char	buf[80];
+
+    fprintf(fp,"arp-------------------------------------\n");
+    fprintf(fp,"arp_hrd=%u",ntohs(arp->arp_hrd));
+    if(ntohs(arp->arp_hrd)<=23){
+        fprintf(fp,"(%s),",hrd[ntohs(arp->arp_hrd)]);
+    }else{
+        fprintf(fp,"(undefined),");
+    }
+    fprintf(fp,"arp_pro=%u",ntohs(arp->arp_pro));
+    switch(ntohs(arp->arp_pro)){
+        case	ETHERTYPE_IP:
+            fprintf(fp,"(IP)\n");
+            break;
+        case	ETHERTYPE_ARP:
+            fprintf(fp,"(Address resolution)\n");
+            break;
+        case	ETHERTYPE_REVARP:
+            fprintf(fp,"(Reverse ARP)\n");
+            break;
+        case	ETHERTYPE_IPV6:
+            fprintf(fp,"(IPv6)\n");
+            break;
+        default:
+            fprintf(fp,"(unknown)\n");
+            break;
+    }
+    fprintf(fp,"arp_hln=%u,",arp->arp_hln);
+    fprintf(fp,"arp_pln=%u,",arp->arp_pln);
+    fprintf(fp,"arp_op=%u",ntohs(arp->arp_op));
+    if(ntohs(arp->arp_op)<=10){
+            fprintf(fp,"(%s)\n",op[ntohs(arp->arp_op)]);
+    }else{
+            fprintf(fp,"(undefine)\n");
+    }
+    fprintf(fp,"arp_sha=%s\n",my_ether_ntoa_r(arp->arp_sha,buf,sizeof(buf)));
+    fprintf(fp,"arp_spa=%s\n",arp_ip2str(arp->arp_spa,buf,sizeof(buf)));
+    fprintf(fp,"arp_tha=%s\n",my_ether_ntoa_r(arp->arp_tha,buf,sizeof(buf)));
+    fprintf(fp,"arp_tpa=%s\n",arp_ip2str(arp->arp_spa,buf,sizeof(buf)));
+
+    return(0);
 }
+
