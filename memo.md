@@ -57,3 +57,13 @@ address family inet,protocol family inet.
 * struct ether\_arp,ether\_header
 
 netinet/if\_ether.hに存在している。
+
+* struct iphdr
+
+netinet/ip.hに存在している。
+
+iphdr.tot\_lenはトータルlengthのこと。「バージョン、ヘッダ長、サービスタイプ、全長」の全長。
+
+iphdr.ihlはipヘッダ長のこと。分かり辛い・・・・
+
+その他のプロトコルの構造体もnetinet以下に存在してるっぽい。
