@@ -184,7 +184,12 @@ int AnalyzeIp(u_char *data,int size){
     }else if(iphdr->protocol==IPPROTO_UDP){
         struct udphdr *udphdr;
         udphdr=(struct udphdr*)ptr;
-        len=ntohs(iphdr->tot_len)-iphdr->ihl
+        len=ntohs(iphdr->tot_len)-iphdr->ihl*4;
+        if(udphdr->check!=0&&checkIPDATAchecksum(iphdr,ptr,len)==0){
+            fprintf(stderr,"bad udp checksum");
+            return -1;
+        }
+        AnalyzeUdp(ptr,lest);
     }
 
     return 0;
