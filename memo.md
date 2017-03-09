@@ -23,6 +23,10 @@ ___
 
 バイトオーダー関連の奴。winsockでも使えるっぽい。
 
+htonsのhはhost。nはnetwork。間違えやすいので注意。host to network short.
+
+逆にntohsもある。
+
 * ioctl
 
 ioctlはいろんなコマンド（操作）を発行できる。
