@@ -166,5 +166,26 @@ int AnalyzeIp(u_char *data,int size){
 
     PrintIpHeader(iphdr,option,optionlen,stdout);
 
+    if(iphdr->protocol==IPPROTO_ICMP){
+        len=ntohs(iphdr->tot_len)-iphdr->ihl*4;
+        sum=checksum(ptr,len);
+        if(sum!=0&&sum!=0xFFFF){
+            fprintf(stderr,"bad icmp checksum\n");
+            return -1;
+        }
+        AnalyzeIcmp(ptr,lest);
+    }else if(iphdr->protocol==IPPROTO_TCP){
+        len=ntohs(iphdr->tot_len)-iphdr->ihl*4;
+        if(checkIPDATAchecksum(iphdr,ptr,len)==0){
+            fprintf(stderr,"bad tcp checksum\n");
+            return -1;
+        }
+        AnalyzeTcp(ptr,lest);
+    }else if(iphdr->protocol==IPPROTO_UDP){
+        struct udphdr *udphdr;
+        udphdr=(struct udphdr*)ptr;
+        len=ntohs(iphdr->tot_len)-iphdr->ihl
+    }
+
     return 0;
 }
