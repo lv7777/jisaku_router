@@ -204,6 +204,60 @@ int PrintIpHeader(struct iphdr *iphdr,u_char *option,int optionlen, FILE *fp){
 }
 
 
-int PrintIp6Header(){
+int PrintIp6Header(struct ip6_hdr *ip6,FILE *fp){
+    char buf[80];
+    fprintf(fp,"ip6-----------------------\n");
+    fprintf(fp,"ip6_flow:%x,",ip6->ip6_flow);
+    fprintf(fp,"ip6_plen:%d,",ntohs(ip6->ip6_plen);
+    fprintf(fp,"ip6_nxt:%u",ip6->ip6_nxt);
+    if(ip6->ip6_nxt<=17){
+        fprintf(fp,"(%s),",Proto[ip6->ip6_nxt]);
+    }else{
+        fprintf(fp,"(undfined),");
+    }
+    fprintf(fp,"ip6_hlim:%d",ip6->ip6_hlim);
+    fprintf(fp,"ip6_src:%s\n",inet_ntop(AF_INET6,&ip6->ip6_src,buf,sizeof(buf)));
+    fprintf(fp,"ip6_dst:%s\n",inet_ntop(AF_INET6,&ip6->ip6_dst,buf,sizeof(buf)));
 
+    return 0;
+}
+
+int PrintIcmp(struct icmp *icmp,FILE *fp){
+    static char *icmp_type[]={
+        "Echo Reply",
+        "undefined",
+        "undefined",
+        "Destination Unreachable",
+        "Redirect",
+        "undefined",
+        "undefined",
+        "Echo Request",
+        "Router Adverisement",
+        "Router Selection",
+        "Time Exceeded for Datagram",
+        "Parameter Problem on Datagram",
+        "Timestamp Request",
+        "Timestamp Reply",
+        "Information Request",
+        "Information Reply",
+        "Address Mask Request",
+        "Address Mask Reply"
+    };
+    fprintf(fp,"icmp------------------------------------\n");
+    fprintf(fp,"icmp_type=%x",icmp->icmp_type);
+    if(icmp->icmp_type<=18){
+        fprintf(fp,"(%s),",icmp_type[icmp->icmp_type]);
+    }else{
+        fprintf(fp,"(undefined)");
+    }
+    fprintf(fp,"icmp_code=%u",icmp->icmp_code);
+    fprintf(fp,"icmp_cksum%u\n",icmp->icmp->cksum);
+
+
+    if(icmp->icmp_type==0||icmp->icmp_type==8){
+                fprintf(fp,"icmp_id=%u,",ntohs(icmp->icmp_id));
+                fprintf(fp,"icmp_seq=%u\n",ntohs(icmp->icmp_seq));
+	}
+
+	return(0);
 }
