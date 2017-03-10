@@ -77,6 +77,6 @@ iphdr.ihlはipヘッダ長のこと。分かり辛い・・・・
 netinet/ip6.hに存在している。
 
 ip6の場合はipとはずれている。
-例えばipのヘッダ長がihlに大して、ip6\_hdrだと、ip6\_hdr->ip6_nxtみたいな感じになる。
+例えばipのヘッダ長がprotocolに対して、ip6\_hdrだと、ip6\_hdr->ip6_nxtみたいな感じになる。
 
 ip6\_hdr->ip6\_flowはフロータイプ、ip4のqos的な奴（すっかり忘れてた)
