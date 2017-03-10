@@ -300,3 +300,89 @@ int PrintIcmp6(struct icmp6_hdr *icmp6,FILE *fp)
 
 	return(0);
 }
+
+int PrintTcp(struct tcphdr *tcphdr,FILE *fp){
+    fprintf(fp,"tcp----------------------\n");
+
+    fprintf(fp,"source=%u,",ntohs(tcphdr->source));
+    fprintf(fp,"dest=%u\n",ntohs(tcphdr->dest));
+    fprintf(fp,"seq=%u\n",ntohl(tcphdr->seq));
+    fprintf(fp,"ack_seq=%u\n",ntohl(tcphdr->ack_seq));
+    fprintf(fp,"doff=%u,",tcphdr->doff);
+    fprintf(fp,"urg=%u,",tcphdr->urg);
+    fprintf(fp,"ack=%u,",tcphdr->ack);
+    fprintf(fp,"psh=%u,",tcphdr->psh);
+    fprintf(fp,"rst=%u,",tcphdr->rst);
+    fprintf(fp,"syn=%u,",tcphdr->syn);
+    fprintf(fp,"fin=%u,",tcphdr->fin);
+    fprintf(fp,"th_win=%u\n",ntohs(tcphdr->window));
+    fprintf(fp,"th_sum=%u,",ntohs(tcphdr->check));
+    fprintf(fp,"th_urp=%u\n",ntohs(tcphdr->urg_ptr));
+}
+
+
+int PrintUdp(struct udphdr *udphdr,FILE *fp)
+{
+	
+
+	fprintf(fp,"udp-------------------------------------\n");
+
+        fprintf(fp,"source=%u,",ntohs(udphdr->source));
+        fprintf(fp,"dest=%u\n",ntohs(udphdr->dest));
+	switch(ntohs(udphdr->dest)){
+
+		case 22:
+		printf("service is ssh,");
+		break;
+		case 25:
+		printf("service is smtp,");
+		break;
+		case 53:
+		printf("service is dns,");
+		break;
+		case 80:
+		printf("service is http,");
+		break;
+		case 143:
+		printf("service is imap,");
+		break;
+		case 161:
+		printf("service is snmp,");
+		break;
+		case 443:
+		printf("service is https,");
+		break;
+		default:
+			switch(ntohs(udphdr->source)){
+			case 22:
+			printf("service is ssh,");
+			break;
+			case 25:
+			printf("service is smtp,");
+			break;
+			case 53:
+			printf("service is dns,");
+			break;
+			case 80:
+			printf("service is http,");
+			break;
+			case 143:
+			printf("service is imap,");
+			break;
+			case 161:
+			printf("service is snmp,");
+			break;
+			case 443:
+			printf("service is https,");
+			break;
+			default:
+			printf("service is other,");
+			break;
+			}
+		break;
+	}
+        fprintf(fp,"len=%u,",ntohs(udphdr->len));
+        fprintf(fp,"check=%x\n",ntohs(udphdr->check));
+
+	return(0);
+}
