@@ -87,3 +87,19 @@ ip6の場合はipとはずれている。
 例えばipのヘッダ長がprotocolに対して、ip6\_hdrだと、ip6\_hdr->ip6_nxtみたいな感じになる。
 
 ip6\_hdr->ip6\_flowはフロータイプ、ip4のqos的な奴（すっかり忘れてた)
+
+* sockaddr_ll
+
+linklayer sock addr。
+
+netpacket/packet.hに定義されてる。
+
+タダのsockaddrのほうはsys/socket.hにある。
+
+* arpa/inet.h
+
+ntohsやhtonsなどが定義されている。
+
+* ifreqとioctl
+
+ioctlはsys/ioctl.hに存在しておりifreq構造体はlinux/if.h、もしくはnet/if.hに存在している。
