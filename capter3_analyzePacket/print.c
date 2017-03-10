@@ -166,3 +166,44 @@ static char     *Proto[]={
         "UDP"
 };
 
+int PrintIpHeader(struct iphdr *iphdr,u_char *option,int optionlen, FILE *fp){
+    int i;
+    char buf[80];
+    fprintf(fp,"ip-----------------------------\n");
+    fprintf(fp,"version:%u\n",iphdr->version);
+    fprintf(fp,"header length : %u \n",iphdr->ihl);
+    fprintf(fp,"service type : %u \n",iphdr->tos);
+    fprintf(fp,"all length : %u \n",iphdr->tot_len);
+    fprintf(fp,"id : %u \n",iphdr->id);
+    fprintf(fp,"flag offset :%X %u",(ntohs(iphdr->flag_off)>>13)&0x07,ntohs(iphdr->flag_off)&0x1FFF);
+    fprintf(fp,"ttl:%x",iphdr->ttl);
+
+	fprintf(fp,"protocol=%u",iphdr->protocol);
+	if(iphdr->protocol<=17){
+		fprintf(fp,"(%s),",Proto[iphdr->protocol]);
+	}
+	else{
+		fprintf(fp,"(undefined),");
+	}
+	fprintf(fp,"check=%x\n",iphdr->check);
+	fprintf(fp,"saddr=%s,",ip_ip2str(iphdr->saddr,buf,sizeof(buf)));
+	fprintf(fp,"daddr=%s\n",ip_ip2str(iphdr->daddr,buf,sizeof(buf)));
+	if(optionLen>0){
+		fprintf(fp,"option:");
+		for(i=0;i<optionLen;i++){
+			if(i!=0){
+				fprintf(fp,":%02x",option[i]);
+			}
+			else{
+				fprintf(fp,"%02x",option[i]);
+			}
+		}
+	}
+
+	return(0);
+}
+
+
+int PrintIp6Header(){
+
+}
