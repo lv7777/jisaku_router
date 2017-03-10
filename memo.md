@@ -27,6 +27,13 @@ htonsのhはhost。nはnetwork。間違えやすいので注意。host to networ
 
 逆にntohsもある。
 
+
+* inet\_ntop,inet\_pton
+
+nはnetwork。pはplain text（多分）
+
+パックされた人間に読めないネットワークアドレスをstringにする。
+
 * ioctl
 
 ioctlはいろんなコマンド（操作）を発行できる。
