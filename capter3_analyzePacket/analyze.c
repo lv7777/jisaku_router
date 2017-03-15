@@ -15,6 +15,8 @@
 #include<netinet/ip_icmp.h>
 #include<netinet/tcp.h>
 #include<netinet/udp.h>
+#include"checksum.h"
+#include"print.h"
 
 #ifndef ETHERTYPE_IPV6
 #define ETHERTYPE_IPV6 0x86dd
