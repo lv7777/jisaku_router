@@ -36,6 +36,8 @@ u_int16_t checksum(u_char *data,int len){
     register u_int32_t sum=0;
     register u_int16_t *ptr;
     ptr=(u_int16_t *)data;
+
+    //dataを舐めて負の数があったら次の16bitと+する？
     for(int c=len;c>1;c-=2){
         sum=(*ptr);
         if(sum&0x80000000){
@@ -43,11 +45,19 @@ u_int16_t checksum(u_char *data,int len){
         }
         ptr++;
     }
+
+    
     if(c==1){
         u_int16_t val;
         val=0;
         memcpy(&val,ptr,sizeof(u_int8_t));
         sum+=val;
     }
+
+    //本物のチェックサム計算
+    while(sum>>16){
+        sum=(sum&0xFFFF)+(sum>>16);
+    }
     return (~sum);
 }
+
