@@ -134,3 +134,7 @@ e.g.
 ~(0x1010+0xFFFF)=EFF1
 
 (0xFFFF+(~0x1010)).toString(16).toUpperCase()
+
+# register修飾子
+
+レジスタに当てはめるやつ
