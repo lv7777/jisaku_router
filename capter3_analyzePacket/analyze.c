@@ -71,15 +71,15 @@ int AnalyzeIcmp6(u_char *data,int size){
     struct icmp6_hdr *icmp6;
     ptr=data;
     lest=size;
-    if(lest<sizeof(struct icmp6_hdr)){
+    if(lest<sizeof(struct  icmp6_hdr*)){
         fprintf(stderr,"lest(%d)<sizeof(struct icmp6hdr)\n",lest);
         return -1;
     }
     icmp6=(struct icmp6_hdr*)ptr;
 
     //TODO:what this code?
-    ptr+=sizeof(struct icmp6_hdr);
-    lest+=sizeof(struct icmp6_hdr);
+    ptr+=sizeof(struct icmp6_hdr*);
+    lest+=sizeof(struct icmp6_hdr*);
 
     PrintIcmp(icmp6,stdout);
 
@@ -249,13 +249,13 @@ int AnalyzePacket(u_char *data,int size){
     ptr=data;
     lest=size;
 
-    if(lest<sizeof(struct ether_header)){
+    if(lest<sizeof(*eh)){
         fprintf(stderr,"lest(%d)<sizeof(ether_header)\n",lest);
     }
 
     eh=(struct ether_header*)ptr;
-    ptr+=sizeof(struct ehter_header);
-    lest-=sizeof(struct ether_header);
+    ptr+=sizeof(*eh);
+    lest-=sizeof(*eh);
 
     if(ntohs(eh->ether_type)==ETHERTYPE_ARP){
         fprintf(stderr,"Packet[%dbytes]\n",size);
