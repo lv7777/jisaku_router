@@ -75,7 +75,7 @@ int AnalyzeIcmp6(u_char *data,int size){
         fprintf(stderr,"lest(%d)<sizeof(struct icmp6hdr)\n",lest);
         return -1;
     }
-    icmp=(struct icmp6_hdr*)ptr;
+    icmp6=(struct icmp6_hdr*)ptr;
 
     //TODO:what this code?
     ptr+=sizeof(struct icmp6_hdr);
@@ -223,7 +223,7 @@ int AnalyzeIpv6(u_char *data,int size){
             return -1;
         }
         AnalyzeIcmp6(ptr,lest);
-    }else if(ip6->ip6_nxt==IPPROTTO_TCP){
+    }else if(ip6->ip6_nxt==IPPROTO_TCP){
         len=ntohs(ip6->ip6_plen);
         if(checkIP6DATAchecksum(ip6,ptr,len)==0){
             fprintf(stderr,"bad tcp6 checksum");
