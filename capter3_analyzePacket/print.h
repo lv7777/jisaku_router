@@ -1,0 +1,11 @@
+char my_ether_ntoa_r(u_char*,char*,socketlen_t);
+char arp_ip2str(u_int8_t*,char*,socketlen_t);
+char ip_ip2str(u_int32_t *,char*,socketlen_t);
+int PrintEtherHeader(struct ether_header* ,FILE *);
+int PrintArp(struct ether_arp *,FILE);
+int PrintIpHeader(struct iphdr *,u_char *,int,FILE *);
+int PrintIp6Header(struct ip6_hdr*,FILE *);
+int PrintIcmp(struct icmp*,FILE *);
+int PrintIcmp6(struct icmp6_hdr *,FILE *);
+int PrintTcp(struct tcphdr *,FILE *);
+int PrintUdp(struct udphdr*,FILE *);
