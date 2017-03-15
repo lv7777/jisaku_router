@@ -14,6 +14,7 @@
 #include<arpa/inet.h>
 #include<netpacket/packet.h>
 #include<netinet/ip.h>
+#include"analyze.h"
 
 int InitRawSocket(char *device,int promiscFlag,int ipOnly){
 
