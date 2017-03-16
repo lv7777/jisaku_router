@@ -158,6 +158,7 @@ int main(int argc,char **argv,char **envp){
             pcappkt.len=size;
             if(fwrite(&pcappkt,sizeof(struct pcap_pkheader),1,fp)){
                 printf("ok!");
+                fwrite(buf,size,1,fp);
             }else{
                 printf("error!!!");
             }
