@@ -20,6 +20,26 @@
 #include<linux/if.h>
 #include<netpacket/packet.h>
 #include<netinet/if_ether.h>
+#include<sys/time.h>
+
+
+struct pcap_file_header{
+    uint32_t magic;
+    uint16_t major;
+    uint16_t minor;
+    int32_t timezone;
+    uint32_t sigfigs;
+    uint32_t snaplen;
+    uint32_t linktype;
+};
+
+struct pcap_pkheader{
+    uint32_t ts_sec; 
+    uint32_t ts_usec; 
+    //struct timeval ts;
+    uint32_t caplen;
+    uint32_t len;
+};
 
 int socketinit(char *device,int promiscasmode,int iponly){
     struct ifreq ifreq;
@@ -107,19 +127,50 @@ int main(int argc,char **argv,char **envp){
         fprintf(stderr,"socketinit:err:%s\n",argv[1]);
         return 1;
     }
-
-    while(1){
+    FILE *fp=fopen("tes.pcap","wb");
+    int magic=0xa1b2c3d4;
+    struct pcap_file_header pfh;
+    pfh.magic=magic;
+    pfh.major=2;
+    pfh.minor=4;
+    pfh.timezone=9;
+    pfh.sigfigs=0;
+    pfh.snaplen=65535;
+    pfh.linktype=1;
+    if(fwrite(&pfh,sizeof(struct pcap_file_header),1,fp)){
+        printf("ok!");
+        
+    }else{
+        printf("error!!!");
+    }
+    //fprintf(fp,"%x",magic);
+    int cnt=50;
+    while(cnt){
         if((size=read(sd,buf,sizeof(buf)))<=0){
             perror("read");
         }else{
+            printf("size is %x",size);
+            struct pcap_pkheader pcappkt;
+            //gettimeofday(&pcappkt.ts,NULL);
+            pcappkt.ts_sec=0;
+            pcappkt.ts_usec=50;
+            pcappkt.caplen=size;
+            pcappkt.len=size;
+            if(fwrite(&pcappkt,sizeof(struct pcap_pkheader),1,fp)){
+                printf("ok!");
+            }else{
+                printf("error!!!");
+            }
             if(size>=sizeof(struct ether_header)){
                 PrintEtherHeader( (struct ether_header *)buf,stdout );
             }else{
                 fprintf(stderr,"read size(%d) 1, %d \n",size,sizeof(struct ether_header));
             }
         }
+        cnt--;
     }
-
+    printf("ok!end");
+    fclose(fp);
     close(sd);
 
     return 0;
