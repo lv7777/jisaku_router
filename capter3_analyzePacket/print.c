@@ -1,20 +1,19 @@
-#include<stdio.h>
-#include<string.h>
-#include<unistd.h>
-
-#include<sys/ioctl.h>
-
-#include<arpa/inet.h>
-#include<sys/socket.h>
-#include<linux/if.h>
-#include<net/ethernet.h>
-#include<netpacket/packet.h>
-#include<netinet/if_ether.h>
-#include<netinet/ip.h>
-#include<netinet/ip6.h>
-#include<netinet/ip_icmp.h>
-#include<netinet/tcp.h>
-#include<netinet/udp.h>
+#include	<stdio.h>
+#include	<string.h>
+#include	<unistd.h>
+#include	<sys/ioctl.h>
+#include	<arpa/inet.h>
+#include	<sys/socket.h>
+#include	<linux/if.h>
+#include	<net/ethernet.h>
+#include	<netpacket/packet.h>
+#include	<netinet/if_ether.h>
+#include	<netinet/ip.h>
+#include	<netinet/ip6.h>
+#include	<netinet/ip_icmp.h>
+#include	<netinet/icmp6.h>
+#include	<netinet/tcp.h>
+#include	<netinet/udp.h>
 
 #ifndef ETHERTYPE_IPV6
 #define ETHERTYPE_IPV6 0x86dd
@@ -25,16 +24,16 @@ char* my_ether_ntoa_r(u_char *hwaddr,char *buf,socklen_t size){
     return buf;
 }
 
-char* arp_ip2str(u_int8_t *ip,char *buf,socket_len_t size){
+char* arp_ip2str(u_int8_t *ip,char *buf,socklen_t size){
     snprintf(buf,size,"%d.%d.%d.%d",ip[0],ip[1],ip[2],ip[3]);
     return buf;
 }
 
-char* ip_ip2str(u_int32_t *ip,char *buf,socket_len_t size){
+char* ip_ip2str(u_int32_t *ip,char *buf,socklen_t size){
     struct in_addr *addr;
     addr=(struct in_addr *)&ip;
     inet_ntop(AF_INET,addr,buf,size);
-    retur buf;
+    return buf;
 }
 
 int PrintEtherHeader(struct ether_header *eh,FILE *fp){
@@ -175,7 +174,7 @@ int PrintIpHeader(struct iphdr *iphdr,u_char *option,int optionlen, FILE *fp){
     fprintf(fp,"service type : %u \n",iphdr->tos);
     fprintf(fp,"all length : %u \n",iphdr->tot_len);
     fprintf(fp,"id : %u \n",iphdr->id);
-    fprintf(fp,"flag offset :%X %u",(ntohs(iphdr->flag_off)>>13)&0x07,ntohs(iphdr->flag_off)&0x1FFF);
+    fprintf(fp,"flag offset :%X %u",(ntohs(iphdr->frag_off)>>13)&0x07,ntohs(iphdr->frag_off)&0x1FFF);
     fprintf(fp,"ttl:%x",iphdr->ttl);
 
 	fprintf(fp,"protocol=%u",iphdr->protocol);
@@ -188,9 +187,9 @@ int PrintIpHeader(struct iphdr *iphdr,u_char *option,int optionlen, FILE *fp){
 	fprintf(fp,"check=%x\n",iphdr->check);
 	fprintf(fp,"saddr=%s,",ip_ip2str(iphdr->saddr,buf,sizeof(buf)));
 	fprintf(fp,"daddr=%s\n",ip_ip2str(iphdr->daddr,buf,sizeof(buf)));
-	if(optionLen>0){
+	if(optionlen>0){
 		fprintf(fp,"option:");
-		for(i=0;i<optionLen;i++){
+		for(i=0;i<optionlen;i++){
 			if(i!=0){
 				fprintf(fp,":%02x",option[i]);
 			}
@@ -208,7 +207,7 @@ int PrintIp6Header(struct ip6_hdr *ip6,FILE *fp){
     char buf[80];
     fprintf(fp,"ip6-----------------------\n");
     fprintf(fp,"ip6_flow:%x,",ip6->ip6_flow);
-    fprintf(fp,"ip6_plen:%d,",ntohs(ip6->ip6_plen);
+    fprintf(fp,"ip6_plen:%d,",ntohs(ip6->ip6_plen));
     fprintf(fp,"ip6_nxt:%u",ip6->ip6_nxt);
     if(ip6->ip6_nxt<=17){
         fprintf(fp,"(%s),",Proto[ip6->ip6_nxt]);
@@ -251,7 +250,7 @@ int PrintIcmp(struct icmp *icmp,FILE *fp){
         fprintf(fp,"(undefined)");
     }
     fprintf(fp,"icmp_code=%u",icmp->icmp_code);
-    fprintf(fp,"icmp_cksum%u\n",icmp->icmp->cksum);
+    fprintf(fp,"icmp_cksum%u\n",icmp->icmp_cksum);
 
 
     if(icmp->icmp_type==0||icmp->icmp_type==8){
@@ -267,8 +266,7 @@ int PrintIcmp6(struct icmp6_hdr *icmp6,FILE *fp)
 {
 
 	fprintf(fp,"icmp6-----------------------------------\n");
-
-	fprintf(fp,"icmp6_type=%u",icmp6->icmp6_type);
+    fprintf(fp,"icmp6_type=%u",icmp6->icmp6_type);
 	if(icmp6->icmp6_type==1){
 		fprintf(fp,"(Destination Unreachable),");
 	}

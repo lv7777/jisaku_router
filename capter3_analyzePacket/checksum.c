@@ -3,7 +3,7 @@
 #include<unistd.h>
 #include<sys/ioctl.h>
 #include<sys/socket.h>
-#include<linux.if.h>
+#include<linux/if.h>
 #include<net/ethernet.h>
 #include<arpa/inet.h>
 #include<netpacket/packet.h>
@@ -15,51 +15,54 @@
 #include<netinet/tcp.h>
 #include<netinet/udp.h>
 
+
 struct pseudo_ip{
-    struct in_addr ip_src;
-    struct in_addr ip_dst;
-    u_char dummy;
-    u_char ip_p;
-    unsigned short ip_len;
-}
+        struct in_addr  ip_src;
+        struct in_addr  ip_dst;
+        unsigned char   dummy;
+        unsigned char   ip_p;
+        unsigned short  ip_len;
+};
 
-struct pseudp_ip6{
-    struct ip6_addr src;
-    struct ip6_addr dst;
-    unsigned long plen;
-    unsigned short dmy1;
-    unsigned char dmy2;
-    unsigned char nxt;
-}
+struct pseudo_ip6_hdr{
+        struct in6_addr src;
+        struct in6_addr dst;
+        unsigned long   plen;
+        unsigned short  dmy1;
+        unsigned char   dmy2;
+        unsigned char   nxt;
+};
 
-u_int16_t checksum(u_char *data,int len){
-    register u_int32_t sum=0;
-    register u_int16_t *ptr;
-    ptr=(u_int16_t *)data;
+u_int16_t checksum(u_char *data,int len)
+{
+register u_int32_t       sum;
+register u_int16_t       *ptr;
+register int     c;
 
-    //dataを舐めて負の数があったら次の16bitと+する？
-    for(int c=len;c>1;c-=2){
-        sum=(*ptr);
-        if(sum&0x80000000){
-            sum=(sum&0xFFFF)+(sum>>16);
+        sum=0;
+        ptr=(u_int16_t *)data;
+
+        for(c=len;c>1;c-=2){
+                sum+=(*ptr);
+                if(sum&0x80000000){
+                        sum=(sum&0xFFFF)+(sum>>16);
+                }
+                ptr++;
         }
-        ptr++;
-    }
+        if(c==1){
+                u_int16_t       val;
+                val=0;
+                memcpy(&val,ptr,sizeof(u_int8_t));
+                sum+=val;
+        }
 
+        while(sum>>16){
+                sum=(sum&0xFFFF)+(sum>>16);
+        }
 
-    if(c==1){
-        u_int16_t val;
-        val=0;
-        memcpy(&val,ptr,sizeof(u_int8_t));
-        sum+=val;
-    }
-
-    //本物のチェックサム計算
-    while(sum>>16){
-        sum=(sum&0xFFFF)+(sum>>16);
-    }
-    return (~sum);
+	return(~sum);
 }
+
 
 
 u_int16_t checksum2(u_char *data1, int len1, u_char *data2, int len2) {
