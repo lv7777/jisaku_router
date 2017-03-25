@@ -81,6 +81,53 @@ int nready,i,size;
     return 0;
 }
 
+
+int PrintEtherHeader(struct ether_header *eh,FILE *fp){
+    char buf[80];
+    fprintf(fp,"ether_header--------------------------\n");
+    fprintf(fp,"ether_dhost=%s\n",my_ether_ntoa_r(eh->ether_dhost,buf,sizeof(buf)));
+    fprintf(fp,"ether_shost=%s\n",my_ether_ntoa_r(eh->ether_shost,buf,sizeof(buf)));
+    fprintf(fp,"ether_type=%02X",ntohs(eh->ether_type));
+    switch(htons(eh->ether_type)){
+        case ETH_P_IP:
+        fprintf(fp,"(IP)\n");
+        break;
+        case ETH_P_IPV6:
+        fprintf(fp,"(IPv6)\n");
+        break;
+        case ETH_P_ARP:
+        fprintf(fp,"(ARP)\n");
+        break;
+        default:
+        fprintf(fp,"(unknown)\n");
+    }
+    return 0;
+}
+
+int AnalyzePacket(int devno,char *data,int size){
+    u_char *ptr;
+    int lest;
+    struct ether_header *eh;
+    ptr=data;
+    lest=size;
+
+    //error handle
+    if(lest<sizeof(struct ether_header)){
+        printf("error!!! packet size error!!");
+        return -1;
+    }
+
+    eh=(struct ether_header *)data;
+    ptr+=sizeof(struct ether_header);
+    lest-=sizeof(struct ether_header);
+    printf("[%d]",devno);
+    PrintEtherHeader(eh,stderr);   
+    
+
+
+    return 0;
+}
+
 int main(){
 
     if((device[0].soc=InitRawSocket(p.device1,1,0))==-1){
