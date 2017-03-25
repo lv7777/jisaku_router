@@ -44,8 +44,15 @@ void EndSignal(int sig){
 
 //main function!!
 int bridge(){
+    struct pollfd targets[2];
     u_char buf[2048];
-int nready,i,size;
+    int nready,i,size;
+
+    targets[0].fd=device[0].soc;
+    targets[0].events=POLLIN|POLLERR;
+    targets[1].fd=device[1].soc;
+    targets[1].events=POLLIN|POLLERR;
+
     while(EndFlag==0){
         switch(nready=poll(targets,2,100)){
             case -1:
@@ -58,7 +65,7 @@ int nready,i,size;
                 break;
 
             default:
-                for(i=0;i<2,i++){
+                for(i=0;i<2;i++){
                     if(targets[i].revents&(POLLIN|POLLERR)){
                         //ここ、deviceじゃなくてtargets[1].fdでもいいよな。。。
                         size=read(device[i].soc,buf,sizeof(buf));
@@ -66,8 +73,8 @@ int nready,i,size;
                             printf("error");
                         }else{
                             if(AnalyzePacket(i,buf,size)!=-1){
-                                size=write(device[(!i)]).soc;
-                                if(size=<0)){
+                                size=write(device[(!i)].soc,buf,size);
+                                if(size<=0){
                                     perror("write");
                                 }
                             }
@@ -82,27 +89,27 @@ int nready,i,size;
 }
 
 
-int PrintEtherHeader(struct ether_header *eh,FILE *fp){
-    char buf[80];
-    fprintf(fp,"ether_header--------------------------\n");
-    fprintf(fp,"ether_dhost=%s\n",my_ether_ntoa_r(eh->ether_dhost,buf,sizeof(buf)));
-    fprintf(fp,"ether_shost=%s\n",my_ether_ntoa_r(eh->ether_shost,buf,sizeof(buf)));
-    fprintf(fp,"ether_type=%02X",ntohs(eh->ether_type));
-    switch(htons(eh->ether_type)){
-        case ETH_P_IP:
-        fprintf(fp,"(IP)\n");
-        break;
-        case ETH_P_IPV6:
-        fprintf(fp,"(IPv6)\n");
-        break;
-        case ETH_P_ARP:
-        fprintf(fp,"(ARP)\n");
-        break;
-        default:
-        fprintf(fp,"(unknown)\n");
-    }
-    return 0;
-}
+// int PrintEtherHeader(struct ether_header *eh,FILE *fp){
+//     char buf[80];
+//     fprintf(fp,"ether_header--------------------------\n");
+//     fprintf(fp,"ether_dhost=%s\n",my_ether_ntoa_r(eh->ether_dhost,buf,sizeof(buf)));
+//     fprintf(fp,"ether_shost=%s\n",my_ether_ntoa_r(eh->ether_shost,buf,sizeof(buf)));
+//     fprintf(fp,"ether_type=%02X",ntohs(eh->ether_type));
+//     switch(htons(eh->ether_type)){
+//         case ETH_P_IP:
+//         fprintf(fp,"(IP)\n");
+//         break;
+//         case ETH_P_IPV6:
+//         fprintf(fp,"(IPv6)\n");
+//         break;
+//         case ETH_P_ARP:
+//         fprintf(fp,"(ARP)\n");
+//         break;
+//         default:
+//         fprintf(fp,"(unknown)\n");
+//     }
+//     return 0;
+// }
 
 int AnalyzePacket(int devno,char *data,int size){
     u_char *ptr;
@@ -130,11 +137,11 @@ int AnalyzePacket(int devno,char *data,int size){
 
 int main(){
 
-    if((device[0].soc=InitRawSocket(p.device1,1,0))==-1){
+    if((device[0].soc=InitRawSocket(arg.device1,1,0))==-1){
         printf("error");
         return -1;
     }
-    if((device[1].soc=InitRawSocket(p.device2,1,0))==-1){
+    if((device[1].soc=InitRawSocket(arg.device2,1,0))==-1){
         printf("error");
         return -1;
     }
