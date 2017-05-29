@@ -2,3 +2,5 @@
 
 * arp cacheの実装
 
+* ethernetをether_addrにする
+
