@@ -34,6 +34,11 @@ nはnetwork。pはplain text（多分）
 
 パックされた人間に読めないネットワークアドレスをstringにする。
 
+* inet_aton
+
+address(192.168.114.51)をint型のアレ(全部16になるやつ)に変換する。
+ntopとの違いはなんだろ。
+
 * ioctl
 
 ioctlはいろんなコマンド（操作）を発行できる。
@@ -168,3 +173,20 @@ pollの場合はstruct pollfdの配列を作ってその配列の要素ごとに
 
 pollはイベントが発生していたら1以上の数値(イベントが発生してるソケットディスクリプタの数)をだしてそれ以外は-1を出す。
 
+# arpプロトコル
+
+hwtype,upper protocol,hlen,upper protocol length,operation type,smac,sip,dmac,dip
+
+# icmp protocol
+
+icmptype,icmpcode,checksum, depend with icmptype
+
+* icmpcode...depend with icmp type.
+
+main user is icmp unreachabletype(write to reason),time exceed(if ttl0 time exceed , write 00)
+
+# pthread\_attr\_t
+
+スレッドの属性設定に使う。
+
+こいつをpthread\_create関数の第２引数に渡すと属性設定済みのスレッドが作成できるっぽい。
