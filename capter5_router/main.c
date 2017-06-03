@@ -213,3 +213,108 @@ int AnalyzePacket(int deviceNo,u_char *data,int size){
     }
     return 0;
 }
+
+//router recive process
+int Router(){
+    struct pollfd target[2];
+    int nready,i,size;
+    u_char buf[2048];
+    target[0].fd=Device[0].soc;
+    target[0].events=POLLIN|POLLERR;
+    target[1].fd=Device[1].soc;
+    target[1].events=POLLIN|POLLERR;
+    
+    while(EndFlag==0){
+        switch(nready=poll(target,2,100)){
+            case -1:
+                if(errno!=EINTR){
+                    DebugPerror("poll");
+                }
+                break;
+            case 0:
+            break;
+            default:
+                for(i=0,i<2,i++){
+                    if(targets[i].revents&(POLLIN|POLLERR)){
+                        if((size=read(Device[i].soc,buf,sizeof(buf)))<=0){
+                            DebugPerror("read");
+                        }
+                        else{
+                            AnalyzePacket(i,buf,size);
+                        }
+                    }
+                }
+                break;
+        }
+    }
+    return 0;
+}
+
+int DisableIpForward(){
+    FILE *fp;
+    if(fp=fopen("/proc/sys/net/ipv4/ip_forward","w")==NULL){
+        DebugPrintf("cannot write /proc/sys/net/ipv4/ip_forword\n");
+        return -1;
+    }
+    fputs("0",fp);
+    fclose(fp);
+
+    return 0;
+}
+
+void EndSignal(int sig){
+    EndFlag=1;
+}
+
+pthread_t BufTid;
+
+int main(int argc,char **argv,char *envp[]){
+    char buf[80];
+    pthread_attr_t attr;
+    int status;
+
+    inet_aton(Param.NextRouter,&NextRouter);
+    DebugPrintf("NextRouter=%s\n",my_inet_ntoa_r(&NextRouter,buf,sizeof(buf)));
+
+    if(GetDeviceInfo(Param.Device1,Device[0].hwaddr,Device[0].addr,&Device[0].subnet,&Device[0].netmask)==-1){
+        DebugPrintf("GetDeviceInfo:error:%s\n",Param.Device1);
+        return -1;
+    }
+    if((Device[0].soc=InitRawSocket(Param.Device1,0,0))==-1){
+        DebugPrintf("InitRawSocket:error:%s\n",Param.Device1);
+        return -1;
+    }
+    if(GetDeviceInfo(Param.Device2,Device[1].hwaddr,Device[1].addr,&Device[1].subnet,&Device[1].netmask)==-1){
+        DebugPrintf("GetDeviceInfo:error:%s\n",Param.Device2);
+        return -1;
+    }
+    if((Device[1].soc=InitRawSocket(Param.Device2,0,0))==-1){
+        DebugPrintf("InitRawSocket:error:%s\n",Param.Device2);
+        return -1;
+    }
+    DebugPrintf("start!!");
+    DisableIpForward();
+
+    pthread_attr_init(&attr);
+    if(status=pthread(&BufTid,&attr,BufThread,NULL)!=0){
+        DebugPrintf("pthread_create:%s\n",strerror(status));
+    }
+
+    signal(SIGINT,EndSignal());
+    signal(SINTERM,EndSignal());
+    signal(SIGQUIT,EndSignal());
+
+    signal(SIGPIPE,SIG_IGN);
+    signal(SIGTIN,SIG_IGN);
+    signal(SIGTTOU,SIG_IGN);
+
+    DebugPrintf("router start!!\n");
+    Router();
+    DebugPrintf("router end!!\n");
+
+    pthread_join(BufTid,NULL);
+    close(Device[0].soc);
+    close(Device[1].soc);
+
+    return 0;
+}
