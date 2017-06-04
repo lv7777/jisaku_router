@@ -198,3 +198,5 @@ sockaddr\_in構造体はソケットの包括的な情報でその中にin\_addr
 in\_addrはin\_addr\_tを持つ構造体
 
 in\_addr\_tはuint32みたいな感じの型。
+
+sockaddr\_llはsockaddr\_inのlink layer版。
