@@ -190,3 +190,11 @@ main user is icmp unreachabletype(write to reason),time exceed(if ttl0 time exce
 スレッドの属性設定に使う。
 
 こいつをpthread\_create関数の第２引数に渡すと属性設定済みのスレッドが作成できるっぽい。
+
+* inaddr
+
+sockaddr\_in構造体はソケットの包括的な情報でその中にin\_addr構造体を含む
+
+in\_addrはin\_addr\_tを持つ構造体
+
+in\_addr\_tはuint32みたいな感じの型。
