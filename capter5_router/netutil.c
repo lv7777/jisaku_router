@@ -5,18 +5,18 @@
 #include<arpa/inet.h>
 #include<sys/socket.h>
 #include<linux/if.h>
-#include<net/netinet.h>
+#include<net/ethernet.h>
 #include<netinet/ip.h>
 #include<netpacket/packet.h>
 #include<netinet/if_ether.h>
 
 extern int DebugPrintf(char *fmt,...);
-extern int DebugPerror(char *msg);
+extern int DebugPerror(char *msg,...);
 
 //init raw socket
 int InitRawSocket(char *device,int promiscFlag,int ipOnly){
     struct ifreq ifreq;
-    struct sockeaddr_ll sa;
+    struct sockaddr_ll sa;
 
     int soc;
     if(ipOnly){
@@ -95,12 +95,12 @@ int GetDeviceInfo(char *device,u_char hwaddr[6],struct in_addr *uaddr,struct in_
         DebugPerror("ioctl");
         close(soc);
         return -1;
-    }else if(ifreq.ifr_name.sa_family!=PF_INET){
+    }else if(ifreq.ifr_addr.sa_family!=PF_INET){
         DebugPerror("%s is not PF_INET\n",device);
         close(soc);
         return -1;
     }else{
-        memcpy(&addr,&ifreq.ifr_name,sizeof(struct sockaddr_in));
+        memcpy(&addr,&ifreq.ifr_addr,sizeof(struct sockaddr_in));
         *uaddr=addr.sin_addr;
     }
 
@@ -270,7 +270,7 @@ typedef struct {
     struct ether_arp arp;
 }PACKET_ARP;
 
-int SendArpRequestB(int soc,in_addr_t,target_ip,){
+int SendArpRequestB(int soc,in_addr_t target_ip,u_char target_mac[6],in_addr_t my_ip,u_char my_mac[6]){
     PACKET_ARP arp;
     int total;
     u_char *p;
@@ -303,11 +303,11 @@ int SendArpRequestB(int soc,in_addr_t,target_ip,){
     }
 
     for(i=0;i<6;i++){
-        arp.eh.ehter_dhost[i]=target_mac[i];
+        arp.eh.ether_dhost[i]=target_mac[i];
     }
 
     for(i=0;i<6;i++){
-        arp.eh.ehter_shost[i]=my_mac[i];
+        arp.eh.ether_shost[i]=my_mac[i];
     }
 
     arp.eh.ether_type=htons(ETHERTYPE_ARP);

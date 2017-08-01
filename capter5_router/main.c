@@ -26,12 +26,12 @@ PARAM	Param={"wlan0","virbr0",1,"192.168.88.1"};
 
 struct in_addr NextRouter;
 
-DEVICE device[2];
+DEVICE Device[2];
 
 int EndFlag=0;
 
-int DebugPrintf(char *fmt){
-    if(param.DebugOut){
+int DebugPrintf(char *fmt,...){
+    if(Param.DebugOut){
         va_list args;
         va_start(args,fmt);
         vsprintf(stderr,fmt,args);
@@ -41,7 +41,7 @@ int DebugPrintf(char *fmt){
 }
 
 int DebugPerror(char *msg){
-    if(param.DebugOut){
+    if(Param.DebugOut){
         fprintf(stderr,"%s : %s\n",msg,strerror(errno));
     }
     return 0;
@@ -56,23 +56,23 @@ int SendIcmpTimeExceeded(int deviceNo,struct ether_header *eh,struct iphdr *iphd
     int len;
 
     memcpy(reh.ether_dhost,eh->ether_shost,6);
-    memcpy(reh.ether_shost,DEVICE[DEVICE].hwaddr,6);
+    memcpy(reh.ether_shost,Device[deviceNo].hwaddr,6);
     rih.version=4;
     rih.ihl=20/4;
     rih.tos=0;
     rih.tot_len=htons(sizeof(struct icmp)+64);
     rih.id=0;
-    rih.flag_off=0;
+    rih.frag_off=0;
     rih.ttl=64;
     rih.protocol=IPPROTO_ICMP;
     rih.check=0;
-    rih.saddr=DEVICE[deviceNo].addr.s_addr;
+    rih.saddr=Device[deviceNo].addr.s_addr;
     rih.daddr=iphdr->saddr;
 
     rih.check=checksum((u_char *)&rih,sizeof(struct iphdr));
 
     icmp.icmp_type=ICMP_TIME_EXCEEDED;
-    icmp.icmp_code=IMCP_TIMXCEED_INTRANS;
+    icmp.icmp_code=ICMP_TIMXCEED_INTRANS;
     icmp.icmp_cksum=0;
     icmp.icmp_void=0;
 
@@ -104,27 +104,27 @@ int AnalyzePacket(int deviceNo,u_char *data,int size){
 
     ptr=data;
     lest=size;
-    if(lest<sizeof(struct ehter_header)){
-        DebugPrintf("[%d]:lest(%d)<sizeof(struct ehter_header)\n",deviceNo,lest);
+    if(lest<sizeof(struct ether_header)){
+        DebugPrintf("[%d]:lest(%d)<sizeof(struct ether_header)\n",deviceNo,lest);
         return -1;
     }
     eh=(struct ether_header *)ptr;
-    ptr+=sizeof(struct ehter_header);
+    ptr+=sizeof(struct ether_header);
     lest-=sizeof(struct ether_header);
 
 
     //macaddrがifと同じものだけ受け取ることでブロードキャストとか弾く。
-    if(memcmp(&eh->ether_dhost,device[deviceNo].hwaddr,6)!=0){
+    if(memcmp(&eh->ether_dhost,Device[deviceNo].hwaddr,6)!=0){
         DebugPrintf("[%d]:dhost not match %s\n",deviceNo,my_ether_ntoa_r((u_char *)&eh->ether_dhost,buf,sizeof(buf)));
         return -1;
     }
-    if(ntohs(eh->ether_type)==EHTHERTYPE_ARP){
+    if(ntohs(eh->ether_type)==ETHERTYPE_ARP){
         struct ether_arp *arp;
         if(lest<sizeof(struct ether_arp)){
             DebugPrintf("[%d]:lest(%d)<sizeof(struuct ether_arp)\n",deviceNo,lest);
             return -1;
         }
-        arp+=(struct ether_arp *)ptr;
+        arp=(struct ether_arp *)ptr;
         ptr+=sizeof(struct ether_arp);
         lest-=sizeof(struct ether_arp);
        if(arp->arp_op==htons(ARPOP_REQUEST)){
@@ -133,12 +133,12 @@ int AnalyzePacket(int deviceNo,u_char *data,int size){
         }
         if(arp->arp_op==htons(ARPOP_REPLY)){
             DebugPrintf("[%d]:recv:ARP REPLY%dbytes\n",deviceNo,size);
-            Ip2Mac(deviceNo,*(in_addr_t *)arp->spa,arp->arp_sha);
+            Ip2Mac(deviceNo,*(in_addr_t *)arp->arp_spa,arp->arp_sha);
         }
     }else if(ntohs(eh->ether_type)==ETHERTYPE_IP){
         struct iphdr *iphdr;
         u_char option[1500];
-        int optionlen;
+        int optionLen;
 
 
         if(lest<sizeof(struct iphdr)){
@@ -166,15 +166,15 @@ int AnalyzePacket(int deviceNo,u_char *data,int size){
         }
 
         if(iphdr->ttl-1==0){
-            Debugprintf("[%d]:iphdr->ttl == 0 error\n",deviceNo);
+            DebugPrintf("[%d]:iphdr->ttl == 0 error\n",deviceNo);
             SendIcmpTimeExceeded(deviceNo,eh,iphdr,data,size);
             return -1;
         }
         tno=(!deviceNo);
         //netmask 255.255.255.0
         //subnet  192.168.88.0
-        if((iphdr->daddr&Device.[tno].netmask.s_addr)==Device[tno].subnet.s_addr){
-            IP2MAC *Ip2mac;
+        if((iphdr->daddr&Device[tno].netmask.s_addr)==Device[tno].subnet.s_addr){
+            IP2MAC *ip2mac;
             DebugPrintf("[%d]recv:%s is Target Segment\n",deviceNo,in_addr_t2str(iphdr->daddr,buf,sizeof(buf)));
 
             if(iphdr->daddr==Device[tno].addr.s_addr){
@@ -183,7 +183,7 @@ int AnalyzePacket(int deviceNo,u_char *data,int size){
             }
 
             ip2mac=Ip2Mac(tno,iphdr->daddr,NULL);
-            if(ip2mac->flag==FLAG_NG||ip2mac->sd.dno!==0){
+            if(ip2mac->flag==FLAG_NG||ip2mac->sd.dno!=0){
                 DebugPrintf("[%d]:Ip2Mac:error or sending\n",deviceNo);
                 AppendSendData(ip2mac,1,iphdr->daddr,data,size);
                 return -1;
@@ -210,7 +210,7 @@ int AnalyzePacket(int deviceNo,u_char *data,int size){
 
         iphdr->ttl--;
         iphdr->check=0;
-        iphdr->checksum2((u_char *),sizeof(struct iphdr),option,optionLen);
+        iphdr->check=checksum2((u_char *)iphdr,sizeof(struct iphdr),option,optionLen);
 
         write(Device[tno].soc,data,size);
 
@@ -220,25 +220,25 @@ int AnalyzePacket(int deviceNo,u_char *data,int size){
 
 //router recive process
 int Router(){
-    struct pollfd target[2];
+    struct pollfd targets[2];
     int nready,i,size;
     u_char buf[2048];
-    target[0].fd=Device[0].soc;
-    target[0].events=POLLIN|POLLERR;
-    target[1].fd=Device[1].soc;
-    target[1].events=POLLIN|POLLERR;
+    targets[0].fd=Device[0].soc;
+    targets[0].events=POLLIN|POLLERR;
+    targets[1].fd=Device[1].soc;
+    targets[1].events=POLLIN|POLLERR;
     
     while(EndFlag==0){
-        switch(nready=poll(target,2,100)){
+        switch(nready=poll(targets,2,100)){
             case -1:
                 if(errno!=EINTR){
                     DebugPerror("poll");
                 }
                 break;
             case 0:
-            break;
+                break;
             default:
-                for(i=0,i<2,i++){
+                for(i=0;i<2;i++){
                     if(targets[i].revents&(POLLIN|POLLERR)){
                         if((size=read(Device[i].soc,buf,sizeof(buf)))<=0){
                             DebugPerror("read");
@@ -266,6 +266,13 @@ int DisableIpForward(){
     return 0;
 }
 
+void *BufThread(void *arg)
+{
+	BufferSend();
+
+	return(NULL);
+}
+
 void EndSignal(int sig){
     EndFlag=1;
 }
@@ -280,7 +287,7 @@ int main(int argc,char **argv,char *envp[]){
     inet_aton(Param.NextRouter,&NextRouter);
     DebugPrintf("NextRouter=%s\n",my_inet_ntoa_r(&NextRouter,buf,sizeof(buf)));
 
-    if(GetDeviceInfo(Param.Device1,Device[0].hwaddr,Device[0].addr,&Device[0].subnet,&Device[0].netmask)==-1){
+    if(GetDeviceInfo(Param.Device1,Device[0].hwaddr,&Device[0].addr,&Device[0].subnet,&Device[0].netmask)==-1){
         DebugPrintf("GetDeviceInfo:error:%s\n",Param.Device1);
         return -1;
     }
@@ -288,7 +295,7 @@ int main(int argc,char **argv,char *envp[]){
         DebugPrintf("InitRawSocket:error:%s\n",Param.Device1);
         return -1;
     }
-    if(GetDeviceInfo(Param.Device2,Device[1].hwaddr,Device[1].addr,&Device[1].subnet,&Device[1].netmask)==-1){
+    if(GetDeviceInfo(Param.Device2,Device[1].hwaddr,&Device[1].addr,&Device[1].subnet,&Device[1].netmask)==-1){
         DebugPrintf("GetDeviceInfo:error:%s\n",Param.Device2);
         return -1;
     }
@@ -300,16 +307,16 @@ int main(int argc,char **argv,char *envp[]){
     DisableIpForward();
 
     pthread_attr_init(&attr);
-    if(status=pthread(&BufTid,&attr,BufThread,NULL)!=0){
+    if(status=pthread_create(&BufTid,&attr,BufThread,NULL)!=0){
         DebugPrintf("pthread_create:%s\n",strerror(status));
     }
 
     signal(SIGINT,EndSignal);
-    signal(SINTERM,EndSignal);
+    signal(SIGTERM,EndSignal);
     signal(SIGQUIT,EndSignal);
 
     signal(SIGPIPE,SIG_IGN);
-    signal(SIGTIN,SIG_IGN);
+    signal(SIGTTIN,SIG_IGN);
     signal(SIGTTOU,SIG_IGN);
 
     DebugPrintf("router start!!\n");

@@ -11,10 +11,11 @@
 #include<netinet/ip.h>
 #include<pthread.h>
 #include"netutil.h"
+#include"base.h"
 #include"ip2mac.h"
 #include"sendBuf.h"
 
-extern int DebugPrintf(char *fmt...);
+extern int DebugPrintf(char *fmt,...);
 
 #define IP2MAC_TIMEOUT_SEC 60
 #define IP2MAC_NG_TIMEOUT_SEC 1
@@ -42,7 +43,7 @@ IP2MAC *Ip2MacSearch(int deviceNo,in_addr_t addr,u_char *hwaddr){
 //IP2MacsはNICの数、deviceNoはデバイスナンバー、noは多分arpテーブルのエントリ数・・・
 //このループはメインはfreeNoを探している。
     for(i=0;i<Ip2Macs[deviceNo].no;i++){
-        ip2mac=Ip2Macs[deviceNo].data[i];
+        ip2mac=&Ip2Macs[deviceNo].data[i];
         //FLAGはarpテーブルのエンティティの有効期限、FLAG_FREEは未定義？もしくはエントリなし（多分こっち）
         if(ip2mac->flag==FLAG_FREE){
             if(freeNo=-1){
@@ -53,7 +54,7 @@ IP2MAC *Ip2MacSearch(int deviceNo,in_addr_t addr,u_char *hwaddr){
         }
         //arpが帰ってきて帰ってきたIPアドレスをarpテーブルから検索したらあったので有効期限の更新。
         if(ip2mac->addr==addr){
-            if(ip2mac->==FLAG_OK){
+            if(ip2mac->flag==FLAG_OK){
                 ip2mac->lastTime=now;
             }
             //検索してヒットしたarpテーブルのhwaddrがnullでない場合

@@ -9,15 +9,15 @@ typedef struct{
 #define FLAG_NG -1
 
 typedef struct _data_buf_{
+    struct _data_buf_ *next;
     struct _data_buf_ *before;
-    struct _data_buf_ *after;
     time_t t;
     int size;
     unsigned char *data;
 }DATA_BUF;
 
 typedef struct{
-    DATA_BUF *top
+    DATA_BUF *top;
     DATA_BUF *bottom;
     unsigned long dno;
     unsigned long inBucketSize;//??
@@ -29,6 +29,6 @@ typedef struct {
     int deviceNo;
     in_addr_t addr;
     unsigned char hwaddr[6];
-    time_t lasttime;
+    time_t lastTime;
     SEND_DATA sd;
 }IP2MAC;
