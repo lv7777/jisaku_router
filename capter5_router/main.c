@@ -22,11 +22,12 @@ typedef struct{
     int DebugOut;
     char *NextRouter;//!!!!
 }PARAM;
-
-PARAM param ={"eth1","eth2",0,"192.168.88.1"};
+PARAM	Param={"wlan0","virbr0",1,"192.168.88.1"};
 
 struct in_addr NextRouter;
+
 DEVICE device[2];
+
 int EndFlag=0;
 
 int DebugPrintf(char *fmt){
@@ -303,9 +304,9 @@ int main(int argc,char **argv,char *envp[]){
         DebugPrintf("pthread_create:%s\n",strerror(status));
     }
 
-    signal(SIGINT,EndSignal());
-    signal(SINTERM,EndSignal());
-    signal(SIGQUIT,EndSignal());
+    signal(SIGINT,EndSignal);
+    signal(SINTERM,EndSignal);
+    signal(SIGQUIT,EndSignal);
 
     signal(SIGPIPE,SIG_IGN);
     signal(SIGTIN,SIG_IGN);
@@ -316,6 +317,7 @@ int main(int argc,char **argv,char *envp[]){
     DebugPrintf("router end!!\n");
 
     pthread_join(BufTid,NULL);
+
     close(Device[0].soc);
     close(Device[1].soc);
 
