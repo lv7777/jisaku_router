@@ -200,3 +200,7 @@ in\_addrはin\_addr\_tを持つ構造体
 in\_addr\_tはuint32みたいな感じの型。
 
 sockaddr\_llはsockaddr\_inのlink layer版。
+
+* リアルタイムに
+
+tcpdump -i wlan0 -U -n -w /tmp/test.pcap tail -f /tmp/test.pcap| wireshark -k -S -i -
