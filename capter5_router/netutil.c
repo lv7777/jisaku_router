@@ -16,7 +16,7 @@ extern int DebugPerror(char *msg);
 //init raw socket
 int InitRawSocket(char *device,int promiscFlag,int ipOnly){
     struct ifreq ifreq;
-    struct sockeaddr_ll;
+    struct sockeaddr_ll sa;
 
     int soc;
     if(ipOnly){
@@ -30,7 +30,16 @@ int InitRawSocket(char *device,int promiscFlag,int ipOnly){
             return -1;
         }
     }
+
+	memset(&ifreq,0,sizeof(struct ifreq));
+	strncpy(ifreq.ifr_name,device,sizeof(ifreq.ifr_name)-1);
+    if(ioctl(soc,SIOCGIFINDEX,&ifreq)<0){
+		DebugPerror("ioctl");
+		close(soc);
+		return(-1);
+	}
     sa.sll_family=PF_PACKET;
+
     if(ipOnly){
         sa.sll_protocol=htons(ETH_P_IP);
     }else{
