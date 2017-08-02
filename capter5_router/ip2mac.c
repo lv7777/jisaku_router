@@ -28,7 +28,9 @@ struct	{
 
 extern DEVICE	Device[2];
 extern int	ArpSoc[2];
+
 extern int	EndFlag;
+
 
 IP2MAC *Ip2MacSearch(int deviceNo,in_addr_t addr,u_char *hwaddr)
 {
@@ -148,7 +150,6 @@ char	buf[80];
 	}
 }
 
-//
 int BufferSendOne(int deviceNo,IP2MAC *ip2mac)
 {
 struct ether_header     eh;
