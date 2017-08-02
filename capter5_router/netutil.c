@@ -78,13 +78,11 @@ struct sockaddr_in	addr;
 int	soc;
 u_char	*p;
 
-		DebugPerror("socket1");
 	if((soc=socket(PF_INET,SOCK_DGRAM,0))<0){
 		DebugPerror("socket");
 		return(-1);
 	}
 
-		DebugPerror("socket2");
 	memset(&ifreq,0,sizeof(struct ifreq));
         strncpy(ifreq.ifr_name,device,sizeof(ifreq.ifr_name)-1);
 
@@ -98,11 +96,9 @@ u_char	*p;
 		memcpy(hwaddr,p,6);
         }
 	
-		DebugPerror("socket3");
 
         if(ioctl(soc,SIOCGIFADDR,&ifreq)==-1){
 
-		DebugPerror("socket35");
                 DebugPerror("ioctl");
 		close(soc);
 		return(-1);
@@ -114,13 +110,11 @@ u_char	*p;
         }
         else{
 
-		DebugPerror("socket36");
                 memcpy(&addr,&ifreq.ifr_addr,sizeof(struct sockaddr_in));
 		*uaddr=addr.sin_addr;
         }
 
 
-		DebugPerror("socket4");
         if(ioctl(soc,SIOCGIFNETMASK,&ifreq)==-1){
                 DebugPerror("ioctl");
 		close(soc);
@@ -135,7 +129,6 @@ u_char	*p;
 
 	close(soc);
 
-		DebugPerror("socket5");
 	return(0);
 }
 
