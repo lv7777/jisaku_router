@@ -286,7 +286,6 @@ int main(int argc,char *argv[],char *envp[]){
     int status;
 
     inet_aton(Param.NextRouter,&NextRouter);
-   printf("test");
     DebugPrintf("NextRouter=%s\n",my_inet_ntoa_r(&NextRouter,buf,sizeof(buf)));
 
     if(GetDeviceInfo(Param.Device1,Device[0].hwaddr,&Device[0].addr,&Device[0].subnet,&Device[0].netmask)==-1){
