@@ -95,10 +95,8 @@ u_char	*p;
                 p=(u_char *)&ifreq.ifr_hwaddr.sa_data;
 		memcpy(hwaddr,p,6);
         }
-	
 
         if(ioctl(soc,SIOCGIFADDR,&ifreq)==-1){
-
                 DebugPerror("ioctl");
 		close(soc);
 		return(-1);
@@ -109,7 +107,6 @@ u_char	*p;
                 return(-1);
         }
         else{
-
                 memcpy(&addr,&ifreq.ifr_addr,sizeof(struct sockaddr_in));
 		*uaddr=addr.sin_addr;
         }
@@ -176,7 +173,7 @@ char	buf[80];
 			fprintf(fp,"(ARP)\n");
 			break;
 		default:
-+			fprintf(fp,"(unknown)\n");
+			fprintf(fp,"(unknown)\n");
 			break;
 	}
 
@@ -357,4 +354,3 @@ int     i;
 
         return(0);
 }
-
