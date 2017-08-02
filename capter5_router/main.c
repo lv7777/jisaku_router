@@ -33,8 +33,9 @@ int EndFlag=0;
 int DebugPrintf(char *fmt,...){
     if(Param.DebugOut){
         va_list args;
+
         va_start(args,fmt);
-        vsprintf(stderr,fmt,args);
+        vfprintf(stderr,fmt,args);
         va_end(args);
     }
     return 0;
@@ -256,7 +257,7 @@ int Router(){
 
 int DisableIpForward(){
     FILE *fp;
-    if(fp=fopen("/proc/sys/net/ipv4/ip_forward","w")==NULL){
+    if((fp=fopen("/proc/sys/net/ipv4/ip_forward","w"))==NULL){
         DebugPrintf("cannot write /proc/sys/net/ipv4/ip_forword\n");
         return -1;
     }
@@ -279,12 +280,13 @@ void EndSignal(int sig){
 
 pthread_t BufTid;
 
-int main(int argc,char **argv,char *envp[]){
+int main(int argc,char *argv[],char *envp[]){
     char buf[80];
     pthread_attr_t attr;
     int status;
 
     inet_aton(Param.NextRouter,&NextRouter);
+   printf("test");
     DebugPrintf("NextRouter=%s\n",my_inet_ntoa_r(&NextRouter,buf,sizeof(buf)));
 
     if(GetDeviceInfo(Param.Device1,Device[0].hwaddr,&Device[0].addr,&Device[0].subnet,&Device[0].netmask)==-1){
@@ -307,7 +309,7 @@ int main(int argc,char **argv,char *envp[]){
     DisableIpForward();
 
     pthread_attr_init(&attr);
-    if(status=pthread_create(&BufTid,&attr,BufThread,NULL)!=0){
+    if((status=pthread_create(&BufTid,&attr,BufThread,NULL))!=0){
         DebugPrintf("pthread_create:%s\n",strerror(status));
     }
 
