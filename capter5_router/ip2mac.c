@@ -20,57 +20,50 @@ extern int DebugPrintf(char *fmt,...);
 #define	IP2MAC_TIMEOUT_SEC	60
 #define	IP2MAC_NG_TIMEOUT_SEC	1
 
-struct {
-    IP2MAC *data;
-    int size;
-    int no;
+struct	{
+	IP2MAC	*data;
+	int	size;
+	int	no;
 }Ip2Macs[2];
-//ARPtable。2つあるのはNICごとに分ける為。
 
-extern DEVICE Device[2];
-extern int ArpSoc[2];
-extern int EndFlag;
+extern DEVICE	Device[2];
+extern int	ArpSoc[2];
+extern int	EndFlag;
 
-IP2MAC *Ip2MacSearch(int deviceNo,in_addr_t addr,u_char *hwaddr){
-    register int i;
-    int freeNo,no;
-    time_t now;
-    char buf[80];
-    IP2MAC *ip2mac;
+IP2MAC *Ip2MacSearch(int deviceNo,in_addr_t addr,u_char *hwaddr)
+{
+register int	i;
+int	freeNo,no;
+time_t	now;
+char	buf[80];
+IP2MAC	*ip2mac;
 
-    freeNo=1;
-    now = time(NULL);
-//IP2MacsはNICの数、deviceNoはデバイスナンバー、noは多分arpテーブルのエントリ数・・・
-//このループはメインはfreeNoを探している。
+	freeNo=-1;
+	now=time(NULL);
 	for(i=0;i<Ip2Macs[deviceNo].no;i++){
 		ip2mac=&Ip2Macs[deviceNo].data[i];
-        //FLAGはarpテーブルのエンティティの有効期限、FLAG_FREEは未定義？もしくはエントリなし（多分こっち）
 		if(ip2mac->flag==FLAG_FREE){
 			if(freeNo==-1){
 				freeNo=i;
-                //テーブルの中でどの部分までエントリがあってどこからがフリーか。
-            }
-            continue;
-        }
-        //arpが帰ってきて帰ってきたIPアドレスをarpテーブルから検索したらあったので有効期限の更新。
-        if(ip2mac->addr==addr){
-            if(ip2mac->flag==FLAG_OK){
-                ip2mac->lastTime=now;
-            }
-            //検索してヒットしたarpテーブルのhwaddrがnullでない場合
-            if(hwaddr!=NULL){
-                //hitしたのでhwアドレスを更新(arpはipからmacを探す)
-                memcpy(ip2mac->hwaddr,hwaddr,6);
-                ip2mac->flag=FLAG_OK;
-                if(ip2mac->sd.top!=NULL){
-                    AppendSendReqData(deviceNo,i);
-                }
-                return ip2mac;
-            }else{
-                //エントリはあるけどmacaddrが存在しない(新規に作成されただけとか)
-                if((ip2mac->flag==FLAG_OK&&now-ip2mac->lastTime>IP2MAC_TIMEOUT_SEC)||
+			}
+			continue;
+		}
+		if(ip2mac->addr==addr){
+			if(ip2mac->flag==FLAG_OK){
+				ip2mac->lastTime=now;
+			}
+			if(hwaddr!=NULL){
+				memcpy(ip2mac->hwaddr,hwaddr,6);
+				ip2mac->flag=FLAG_OK;
+				if(ip2mac->sd.top!=NULL){
+					AppendSendReqData(deviceNo,i);
+				}
+				//DebugPrintf("Ip2Mac EXIST [%d] %s = %d\n",deviceNo,in_addr_t2str(addr,buf,sizeof(buf)),i);
+				return(ip2mac);
+			}
+			else{
+				if((ip2mac->flag==FLAG_OK&&now-ip2mac->lastTime>IP2MAC_TIMEOUT_SEC)||
 				   (ip2mac->flag==FLAG_NG&&now-ip2mac->lastTime>IP2MAC_NG_TIMEOUT_SEC)){
-                    //有効期限が切れたのでfree
 					FreeSendData(ip2mac);
 					ip2mac->flag=FLAG_FREE;
 					//DebugPrintf("Ip2Mac FREE [%d] %s = %d\n",deviceNo,in_addr_t2str(ip2mac->addr,buf,sizeof(buf)),i);
@@ -79,14 +72,12 @@ IP2MAC *Ip2MacSearch(int deviceNo,in_addr_t addr,u_char *hwaddr){
 					}
 				}
 				else{
-                    //有効期限切れでは無い(新規に作成されただけとか)
-					DebugPrintf("....Ip2Mac EXIST... [%d] %s = %d\n",deviceNo,in_addr_t2str(addr,buf,sizeof(buf)),i);
+					//DebugPrintf("Ip2Mac EXIST [%d] %s = %d\n",deviceNo,in_addr_t2str(addr,buf,sizeof(buf)),i);
 					return(ip2mac);
-                    //macaddrの検索は上の階層で行う。ここではやらない。
 				}
-            }
-        }else{
-        //iがエントリとマッチしない。有効期限更新処理のみ行う
+			}
+		}
+		else{
 			if((ip2mac->flag==FLAG_OK&&now-ip2mac->lastTime>IP2MAC_TIMEOUT_SEC)||
 			   (ip2mac->flag==FLAG_NG&&now-ip2mac->lastTime>IP2MAC_NG_TIMEOUT_SEC)){
 				FreeSendData(ip2mac);
@@ -96,14 +87,11 @@ IP2MAC *Ip2MacSearch(int deviceNo,in_addr_t addr,u_char *hwaddr){
 					freeNo=i;
 				}
 			}
-        }
-    }
+		}
+	}
 
-
-//すべて埋まっている場合
-    if(freeNo==-1){
+	if(freeNo==-1){
 		no=Ip2Macs[deviceNo].no;
-        //元々許容しているarpテーブルのサイズと現在のarpエントリ数が同じかそれ以上
 		if(no>=Ip2Macs[deviceNo].size){
 			if(Ip2Macs[deviceNo].size==0){
 				Ip2Macs[deviceNo].size=1024;
@@ -120,7 +108,6 @@ IP2MAC *Ip2MacSearch(int deviceNo,in_addr_t addr,u_char *hwaddr){
 		no=freeNo;
 	}
 
-    //freeNoのアドレスを代入
 	ip2mac=&Ip2Macs[deviceNo].data[no];
 
 	ip2mac->deviceNo=deviceNo;
@@ -140,16 +127,15 @@ IP2MAC *Ip2MacSearch(int deviceNo,in_addr_t addr,u_char *hwaddr){
 	DebugPrintf("Ip2Mac ADD [%d] %s = %d\n",deviceNo,in_addr_t2str(ip2mac->addr,buf,sizeof(buf)),no);
 
 	return(ip2mac);
-
-
 }
 
-IP2MAC *Ip2Mac(int deviceNo,in_addr_t addr,u_char *hwaddr){
-    IP2MAC	*ip2mac;
-    static u_char	bcast[6]={0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
-    char	buf[80];
+IP2MAC *Ip2Mac(int deviceNo,in_addr_t addr,u_char *hwaddr)
+{
+IP2MAC	*ip2mac;
+static u_char	bcast[6]={0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
+char	buf[80];
 
-    ip2mac=Ip2MacSearch(deviceNo,addr,hwaddr);
+	ip2mac=Ip2MacSearch(deviceNo,addr,hwaddr);
 	if(ip2mac->flag==FLAG_OK){
 		DebugPrintf("Ip2Mac(%s):OK\n",in_addr_t2str(addr,buf,sizeof(buf)));
 		return(ip2mac);
@@ -157,18 +143,12 @@ IP2MAC *Ip2Mac(int deviceNo,in_addr_t addr,u_char *hwaddr){
 	else{
 		DebugPrintf("Ip2Mac(%s):NG\n",in_addr_t2str(addr,buf,sizeof(buf)));
 		DebugPrintf("Ip2Mac(%s):Send Arp Request\n",in_addr_t2str(addr,buf,sizeof(buf)));
-        //arpテーブルにエントリが存在しないのでarpを送る。
 		SendArpRequestB(Device[deviceNo].soc,addr,bcast,Device[deviceNo].addr.s_addr,Device[deviceNo].hwaddr);
 		return(ip2mac);
 	}
-
-
 }
 
-
-//送信待ちバッファからデータを送信する。(1つ)
-//送るのはパケット
-//この中(DATA_BUF)に入っているのはmacが未確定のデータ
+//
 int BufferSendOne(int deviceNo,IP2MAC *ip2mac)
 {
 struct ether_header     eh;
@@ -186,9 +166,7 @@ u_char	*ptr;
 
 		ptr=data;
 
-        //ptrからether_header分だけをehに入れる
 		memcpy(&eh,ptr,sizeof(struct ether_header));
-        //ether_header分だけ進める(ptrがiphdrから始まる)
 		ptr+=sizeof(struct ether_header);
 
                 memcpy(&iphdr,ptr,sizeof(struct iphdr));
@@ -201,7 +179,6 @@ u_char	*ptr;
                 }
 
 		memcpy(eh.ether_dhost,ip2mac->hwaddr,6);
-        //ether_headerを指すということはデータの最初のポインタを指す
 		memcpy(data,&eh,sizeof(struct ether_header));
 
 		DebugPrintf("iphdr.ttl %d->%d\n",iphdr.ttl,iphdr.ttl-1);
@@ -225,7 +202,6 @@ u_char	*ptr;
 	return(0);
 }
 
-//arpテーブルに対象となるmacアドレスがセットされた場合送信する。
 typedef struct _send_req_data_	{
 	struct _send_req_data_	*next;
 	struct _send_req_data_	*before;
@@ -239,7 +215,6 @@ struct	{
 	pthread_mutex_t	mutex;
 	pthread_cond_t	cond;
 }SendReq={NULL,NULL,PTHREAD_MUTEX_INITIALIZER,PTHREAD_COND_INITIALIZER};
-
 
 int AppendSendReqData(int deviceNo,int ip2macNo)
 {
@@ -283,8 +258,6 @@ int	status;
 
 	return(0);
 }
-
-
 
 int GetSendReqData(int *deviceNo,int *ip2macNo)
 {
